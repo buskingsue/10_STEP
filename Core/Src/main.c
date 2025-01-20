@@ -18,13 +18,14 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "cmsis_os.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "stdio.h"
 #include "stepper.h"
 #include "delay_us.h"
 
@@ -47,18 +48,28 @@
 
 /* Private variables ---------------------------------------------------------*/
 
+
+
+/* Definitions for led2Task */
+
+/* Definitions for led1Task */
+
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
+void MX_FREERTOS_Init(void);
+void startled2Task(void *argument);
+void startled1Task(void *argument);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
 
 /* USER CODE END 0 */
 
@@ -95,8 +106,23 @@ int main(void)
   MX_TIM11_Init();
   /* USER CODE BEGIN 2 */
 
-  rotateDegrees(450, DIR_CW); // 한번만 돌릴것
+
   /* USER CODE END 2 */
+
+  /* Init scheduler */
+  osKernelInitialize();
+
+  /* Call init function for freertos objects (in cmsis_os2.c) */
+  MX_FREERTOS_Init();
+
+  /* creation of led2Task */
+
+    /* creation of led1Task */
+
+    /* Start scheduler */
+  osKernelStart();
+
+  /* We should never get here as control is now taken by the scheduler */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
@@ -155,8 +181,59 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+/* USER CODE END Header_startLED1Task */
+void startled1Task(void *argument)
+{
 
+  /* USER CODE BEGIN startLED1Task */
+  /* Infinite loop */
+for( ;; )
+{
+  HAL_GPIO_TogglePin(GPIOC, LED1_Pin);
+  osDelay(500);
+}
+
+/* USER CODE END startLED1Task */
+
+}
+/* USER CODE END Header_startLED2Task */
+void startled2Task(void *argument)
+{
+
+  /* USER CODE BEGIN startLED2Task */
+  /* Infinite loop */
+for( ;; )
+{
+  HAL_GPIO_TogglePin(GPIOC, LED2_Pin);
+  osDelay(300);
+}
+
+/* USER CODE END startLED2Task */
+
+}
 /* USER CODE END 4 */
+
+/**
+  * @brief  Period elapsed callback in non blocking mode
+  * @note   This function is called  when TIM10 interrupt took place, inside
+  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
+  * a global variable "uwTick" used as application time base.
+  * @param  htim : TIM handle
+  * @retval None
+  */
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+  /* USER CODE BEGIN Callback 0 */
+
+  /* USER CODE END Callback 0 */
+  if (htim->Instance == TIM10) {
+    HAL_IncTick();
+  }
+  /* USER CODE BEGIN Callback 1 */
+
+  /* USER CODE END Callback 1 */
+}
 
 /**
   * @brief  This function is executed in case of error occurrence.
